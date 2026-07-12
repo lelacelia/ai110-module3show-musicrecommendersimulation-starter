@@ -9,3 +9,11 @@ id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
 8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
 9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
 10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
+11,Midnight in Tokyo,Neon Pulse,k-pop,energetic,0.84,126,0.81,0.88,0.20
+12,Desert Dream,Sahara Collective,reggae,laid-back,0.48,92,0.76,0.71,0.79
+13,Broken Wings,Echo Storm,metal,dark,0.93,168,0.32,0.48,0.08
+14,Velvet Confession,Luna Hearts,soul,sensual,0.52,96,0.77,0.65,0.58
+15,Sunrise in the Alps,Alpine Echo,folk,serene,0.38,88,0.72,0.42,0.88
+16,Street Anthem,Urban Flow,trap,confident,0.81,120,0.68,0.79,0.14
+17,Moonlit Waltz,Classical Dreams,classical,romantic,0.35,70,0.79,0.18,0.94
+18,Rhythm of the Night,Tropical Vibes,afrobeats,euphoric,0.76,104,0.84,0.83,0.42
