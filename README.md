@@ -188,7 +188,6 @@ Use this section to document the experiments you ran. For example:
 - **Binary mood cutoff**: A non-matching mood gets 0 points, ignoring partial credit for similar emotional tones
 - **Sonic whiplash**: Lowering genre weight might recommend reggae and indie pop together if moods/energy match, despite different production styles
 - **No behavioral signals**: Ignores actual user listening behavior (skips, replays)—only uses static features
-- **Tiny catalog**: With only 18 songs, limited diversity to discover new artists
 
 You will go deeper on this in your model card.
 
