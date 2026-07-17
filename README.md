@@ -158,12 +158,63 @@ You can add more tests in `tests/test_recommender.py`.
 Paste a sample of your recommender's output here as a text block so a reader can see what it produces:
 
 ```
-# e.g.:
-# User profile: genre=indie, mood=chill, energy=low
-# Recommendations:
-#   1. ...
-#   2. ...
-#   3. ...
+Loading songs from data/songs.csv...
+Loaded songs: 18
+
+======================================================================
+🎵 TOP SONG RECOMMENDATIONS
+======================================================================
+
+1. Sunrise City
+   Artist: Neon Echo | Genre: pop
+   Score: 7.19/7.5
+   Why this recommendation:
+      • mood match (+2.0)
+      • genre match (+1.0)
+      • valence match (+1.36)
+      • energy match (+1.39)
+      • danceability match (+0.90)
+      • acousticness match (+0.53)
+
+2. Rooftop Lights
+   Artist: Indigo Parade | Genre: indie pop
+   Score: 6.23/7.5
+   Why this recommendation:
+      • mood match (+2.0)
+      • valence match (+1.43)
+      • energy match (+1.37)
+      • danceability match (+0.84)
+      • acousticness match (+0.59)
+
+3. Gym Hero
+   Artist: Max Pulse | Genre: pop
+   Score: 4.66/7.5
+   Why this recommendation:
+      • genre match (+1.0)
+      • valence match (+1.49)
+      • energy match (+1.13)
+      • danceability match (+0.67)
+      • acousticness match (+0.36)
+
+4. Street Anthem
+   Artist: Urban Flow | Genre: trap
+   Score: 4.20/7.5
+   Why this recommendation:
+      • valence match (+1.41)
+      • energy match (+1.40)
+      • danceability match (+0.90)
+      • acousticness match (+0.49)
+
+5. Rhythm of the Night
+   Artist: Tropical Vibes | Genre: afrobeats
+   Score: 4.07/7.5
+   Why this recommendation:
+      • valence match (+1.36)
+      • energy match (+1.37)
+      • danceability match (+0.81)
+      • acousticness match (+0.53)
+
+======================================================================
 ```
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
