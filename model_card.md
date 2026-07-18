@@ -2,60 +2,68 @@
 
 ## 1. Model Name  
 
-Give your model a short, descriptive name.  
-Example: **VibeFinder 1.0**  
+VibeFinder
 
 ---
 
 ## 2. Intended Use  
 
-Describe what your recommender is designed to do and who it is for. 
+**VibeFinder** recommends the top 5 songs from an 18-song catalog that match a user's mood, genre, and audio preferences (energy, valence, danceability, acousticness).
 
-Prompts:  
+**What kind of recommendations does it generate:**
+Ranked song suggestions with scoring breakdowns showing which factors matched.
 
-- What kind of recommendations does it generate  
-- What assumptions does it make about the user  
-- Is this for real users or classroom exploration  
+**What assumptions does it make about the user:**
+Users can articulate their mood and genre preference, and that higher matching scores = better recommendations.
+
+**Is this for real users or classroom exploration:**
+Classroom exploration. It's a simplified simulation showing how preference matching works in recommenders—not production-ready due to its small catalog and assumption that users can precisely describe their taste.
 
 ---
 
 ## 3. How the Model Works  
 
-Explain your scoring approach in simple language.  
+**The core idea:** VibeFinder scores each song by checking how well it matches what you're looking for across six dimensions: mood, genre, energy level, positivity (valence), how danceable it is, and how acoustic vs. electronic it sounds.
 
-Prompts:  
+**What features of each song are used:**
+Each song in the catalog has a mood label (happy, chill, focused, etc.), a genre (pop, jazz, lofi, etc.), and four audio measurements on a 0–1 scale: energy, valence (how positive it feels), danceability, and acousticness.
 
-- What features of each song are used (genre, energy, mood, etc.)  
-- What user preferences are considered  
-- How does the model turn those into a score  
-- What changes did you make from the starter logic  
+**What user preferences are considered:**
+You tell the system your preferred mood and genre, plus your ideal levels for energy, valence, danceability, and acousticness. The system then checks each song against these six preferences.
 
-Avoid code here. Pretend you are explaining the idea to a friend who does not program.
+**How does the model turn those into a score:**
+Mood and genre matches earn fixed bonuses (+2 and +1 points respectively). For the four audio features, the system uses a "preference zone"—if a song's energy is close to your preferred energy, it scores points; if it's far away, it scores fewer. The final score is the sum of all six components, max 7.5 points.
+
+**What changes from the starter:**
+[You'd fill this in with what you customized—e.g., "adjusted Gaussian widths for better discovery" or "changed mood/genre weights"]
 
 ---
 
 ## 4. Data  
 
-Describe the dataset the model uses.  
+**The catalog contains 18 songs** spanning 9 genres (pop, rock, metal, k-pop, afrobeats, lofi, ambient, jazz, classical).
 
-Prompts:  
+**Genres and moods represented:**
+14 different moods are represented: happy, chill, intense, moody, focused, laid-back, dark, sensual, serene, confident, romantic, euphoric, relaxed, energetic. However, each mood typically has only 1–3 songs, so certain combinations (like "angry jazz" or "sad pop") don't exist in the catalog.
 
-- How many songs are in the catalog  
-- What genres or moods are represented  
-- Did you add or remove data  
-- Are there parts of musical taste missing in the dataset  
+**Did you add or remove data:**
+[Specify if you started with the given 18 songs or customized—e.g., "Used the 18-song starter catalog without modifications" or "Added 3 songs to cover X gap"]
+
+**Are there parts of musical taste missing in the dataset:**
+Yes. The small catalog creates gaps: rare moods like "angry" and "sensual" have very few songs, so users with those preferences get limited options. Also missing: instrumental-heavy genres (classical is underrepresented), and certain mood-genre combos that exist in real music but not here.
 
 ---
 
 ## 5. Strengths  
 
-Where does your system seem to work well  
+**User types for which it gives reasonable results:**
+Users with common mood-genre combinations (e.g., "happy pop" or "chill lofi") get strong matches. Users who care more about audio features than mood also see solid results, since the audio-feature scoring captures nuanced preference zones.
 
-Prompts:  
+**Any patterns you think your scoring captures correctly:**
+The two-tier approach—fixed bonuses for mood/genre matches, then variable scoring for audio features—correctly prioritizes explicit preferences while still rewarding close audio matches. When a song hits both mood and genre, it consistently ranks high, which matches intuition about what listeners want.
 
-- User types for which it gives reasonable results  
-- Any patterns you think your scoring captures correctly  
-- Cases where the recommendations matched your intuition  
+**Cases where the recommendations matched your intuition:**
+The "acoustic_electronic_conflict" profile surprisingly performed best (6.94/7.5), discovering that lofi and ambient genres bridge seemingly contradictory preferences. This shows the algorithm can find good compromises when the catalog contains bridging genres. Also, profiles with available moods consistently scored ~1–2 points higher than those with unavailable moods, validating that the mood bonus is meaningful.  
 
 ---
 
@@ -91,7 +99,7 @@ Prompts:
 
 No need for numeric metrics unless you created some.
 
-
+### General Observations
 I ran different edge userprofiles to test how the model work (see model_card.md) - see 1 to 4 below. The issues that came out was:
 **Issue 1**: Profile "Contradictory" uses mood "sad" which doesn't exist in any song
 
@@ -109,25 +117,15 @@ But this profile can never score the +2.0 mood bonus because no song has mood="s
 
 ---
 
-## Profile Pair Comparisons
+### Profile Pair Comparisons
 
-### Comparison 1: Contradictory vs. extreme_maxed (Profiles 1 & 2)
+#### Comparison 1: Contradictory vs. extreme_maxed (Profiles 1 & 2)
 **What changed**: Contradictory max score is 3.97/7.5; extreme_maxed jumps to 4.93/7.5 (+1.0 point).
 **Why it makes sense**: Contradictory uses mood "sad" which doesn't exist in the catalog, so no songs ever trigger the +2.0 mood bonus. It relies entirely on audio feature matches (energy, danceability, valence, acousticness). extreme_maxed has the same mood ("happy") that appears in "Gym Hero" and "Storm Runner," instantly unlocking the +2.0 bonus for top songs. **This validates the algorithm**: both profiles match on pop/rock high-energy songs, but extreme_maxed scores 25% higher because it benefits from the mood filter that Contradictory can't access.
 
-### Comparison 2: extreme_maxed vs. acoustic_electronic_conflict (Profiles 2 & 3)  
+#### Comparison 2: extreme_maxed vs. acoustic_electronic_conflict (Profiles 2 & 3)  
 **What changed**: extreme_maxed max score is 4.93/7.5; acoustic_electronic_conflict reaches 6.94/7.5 (+2.0 points). The genre winners flip completely (pop/rock → lofi/ambient).
 **Why it makes sense**: Both get the +2.0 mood bonus, but acoustic_electronic_conflict achieves it with lofi songs that *also* trigger a genre match (+1.0), stacking to +3.0 before audio features. extreme_maxed's top song (Gym Hero) gets mood (+2.0) but no genre match because the profile prefers maximized audio features rather than a specific genre. acoustic_electronic_conflict's internally contradictory preferences (wants acoustic AND electronic) find their resolution in lofi and ambient—genres that naturally blend both. **This validates the algorithm**: preferences that seem conflicting can actually produce better results when the catalog contains bridging genres.
-
-### Comparison 3: acoustic_electronic_conflict vs. niche_conflicts (Profiles 3 & 4)
-**What changed**: acoustic_electronic_conflict max score is 6.94/7.5; niche_conflicts crashes to 2.47/7.5 (-4.5 points, a 64% drop).
-**Why it makes sense**: Both profiles have "conflicting" preferences, but acoustic_electronic_conflict's preferences (high/low acousticness, electronic qualities, focused mood) exist in the catalog—lofi songs satisfy all of them. niche_conflicts asks for mood "angry" (which doesn't exist) paired with niche genres (metal, k-pop) and low danceability, creating a triple penalty: no mood bonus, rare genre combinations, and audio features that almost never match. **This validates the algorithm**: it correctly identifies when user preferences align with catalog availability vs. when they don't. niche_conflicts isn't a failure—it's the system working correctly by showing that its preferences are genuinely hard to satisfy.
-
-### Comparison 4: Contradictory vs. niche_conflicts (Both low-scoring)
-**What changed**: Contradictory max score is 3.97/7.5; niche_conflicts is 2.47/7.5 (difference of 1.5 points).
-**Why it makes sense**: Contradictory lacks mood match but has genre matches (pop, rock get +1.0) and strong audio feature alignment (energy ≥ 1.29 for top 3). niche_conflicts has almost no genre matches (only 1 song of 5 in results) and barely hits audio feature targets. Contradictory's preferences can be partially satisfied by the 7 songs that don't require mood; niche_conflicts' preferences map to only 1-2 compatible songs in the entire catalog. **This validates the algorithm**: it degrades gracefully—users with partially-missing preferences still get reasonable scores, but users with catalog-incompatible preferences get correctly deprioritized.
-
-
 
 
 1.Profile ```Contradictory```
@@ -370,14 +368,17 @@ Loaded songs: 18
 
 ## 8. Future Work  
 
-Ideas for how you would improve the model next.  
+**Additional features or preferences:**
+Add a "discovery slider" to loosen strict mood/genre filters. Allow users to weight mood vs. audio features differently based on their preference.
 
-Prompts:  
+**Better ways to explain recommendations:**
+Show how close each match is (e.g., "Energy: 0.85 vs your 0.80") and explain near-misses ("No happy songs exist in your preferred genre").
 
-- Additional features or preferences  
-- Better ways to explain recommendations  
-- Improving diversity among the top results  
-- Handling more complex user tastes  
+**Improving diversity among top results:**
+Expand the catalog and penalize ranking very similar songs together. Add a randomness option for exploration.
+
+**Handling more complex user tastes:**
+Replace hard mood/genre filters with soft matching. Add mood families so "dark" and "moody" can substitute for each other.
 
 ---
 
