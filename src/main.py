@@ -8,8 +8,13 @@ You will implement the functions in recommender.py:
 - score_song
 - recommend_songs
 """
+import sys
+from pathlib import Path
 
-from .recommender import load_songs, recommend_songs
+sys.path.insert(0, str(Path(__file__).parent))
+
+from recommender import load_songs, recommend_songs
+from test_profiles import TEST_PROFILES
 
 
 def main() -> None:
@@ -24,6 +29,9 @@ def main() -> None:
         "danceability": 0.70,   # groove/rhythm-driven quality
         "acousticness": 0.30    # acoustic vs electronic preference
     }
+
+    # Override with a test profile if desired
+    user_prefs = TEST_PROFILES["extreme_maxed"]
 
     recommendations = recommend_songs(user_prefs, songs, k=5)
 
