@@ -29,7 +29,7 @@ class UserProfile:
     favorite_genre: str
     favorite_mood: str
     target_energy: float
-    # likes_acoustic: bool
+    # likes_acoustic: bool <--- I did not use this field in my logic
 
 class Recommender:
     """
@@ -40,39 +40,140 @@ class Recommender:
         self.songs = songs
 
     def recommend(self, user: UserProfile, k: int = 5) -> List[Song]:
-        # TODO: Implement recommendation logic
-        return self.songs[:k]
+        if not isinstance(user, UserProfile):
+            raise TypeError(f"Expected UserProfile instance, got {type(user).__name__}")
+
+        if k < 1:
+            raise ValueError(f"k must be at least 1, got {k}")
+
+        if k > len(self.songs):
+            raise ValueError(
+                f"Requested {k} recommendations but only {len(self.songs)} songs available"
+            )
+
+        user_dict = {
+            'favorite_genre': user.favorite_genre,
+            'favorite_mood': user.favorite_mood,
+            'target_energy': user.target_energy,
+        }
+
+        recommendations = [
+            (song, score)
+            for song in self.songs
+            for score, _ in [score_song(user_dict, self._song_to_dict(song))]
+        ]
+
+        sorted_recommendations = sorted(recommendations, key=lambda x: x[1], reverse=True)
+        return [song for song, _ in sorted_recommendations[:k]]
 
     def explain_recommendation(self, user: UserProfile, song: Song) -> str:
-        # TODO: Implement explanation logic
-        return "Explanation placeholder"
+        user_dict = {
+            'favorite_genre': user.favorite_genre,
+            'favorite_mood': user.favorite_mood,
+            'target_energy': user.target_energy,
+        }
+        _, reasons = score_song(user_dict, self._song_to_dict(song))
+        return "; ".join(reasons) if reasons else "no matches"
+
+    def _song_to_dict(self, song: Song) -> Dict:
+        return {
+            'id': song.id,
+            'title': song.title,
+            'artist': song.artist,
+            'genre': song.genre,
+            'mood': song.mood,
+            'energy': song.energy,
+            'tempo_bpm': song.tempo_bpm,
+            'valence': song.valence,
+            'danceability': song.danceability,
+            'acousticness': song.acousticness,
+        }
 
 def load_songs(csv_path: str) -> List[Dict]:
     """Load songs from CSV file with proper type conversions for scoring."""
+    import os
+
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"Song data file not found: {csv_path}")
+
     print(f"Loading songs from {csv_path}...")
+
+    required_columns = {
+        'id', 'title', 'artist', 'genre', 'mood',
+        'energy', 'tempo_bpm', 'valence', 'danceability', 'acousticness'
+    }
+
     songs = []
     with open(csv_path, 'r') as file:
         reader = csv.DictReader(file)
-        for row in reader:
-            # Convert CSV strings to appropriate types for scoring calculations
-            song = {
-                'id': int(row['id']),
-                'title': row['title'],
-                'artist': row['artist'],
-                'genre': row['genre'],
-                'mood': row['mood'],
-                'energy': float(row['energy']),  # 0-1 scale
-                'tempo_bpm': int(row['tempo_bpm']),  # beats per minute
-                'valence': float(row['valence']),  # 0-1 scale (upbeat to introspective)
-                'danceability': float(row['danceability']),  # 0-1 scale
-                'acousticness': float(row['acousticness']),  # 0-1 scale (acoustic to electronic)
-            }
-            songs.append(song)
+
+        if reader.fieldnames is None:
+            raise ValueError(f"CSV file {csv_path} is empty or malformed")
+
+        missing_columns = required_columns - set(reader.fieldnames)
+        if missing_columns:
+            raise ValueError(
+                f"CSV file missing required columns: {', '.join(sorted(missing_columns))}\n"
+                f"Expected: {', '.join(sorted(required_columns))}\n"
+                f"Found: {', '.join(sorted(reader.fieldnames))}"
+            )
+
+        for row_num, row in enumerate(reader, start=2):
+            try:
+                song = {
+                    'id': int(row['id']),
+                    'title': row['title'],
+                    'artist': row['artist'],
+                    'genre': row['genre'],
+                    'mood': row['mood'],
+                    'energy': float(row['energy']),
+                    'tempo_bpm': int(row['tempo_bpm']),
+                    'valence': float(row['valence']),
+                    'danceability': float(row['danceability']),
+                    'acousticness': float(row['acousticness']),
+                }
+                songs.append(song)
+            except ValueError as e:
+                raise ValueError(
+                    f"Row {row_num}: Invalid data format - {e}\n"
+                    f"Row content: {row}"
+                )
+
+    if not songs:
+        raise ValueError(f"No valid songs found in {csv_path}")
+
     print(f"Loaded songs: {len(songs)}")
     return songs
 
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """Score a song against user preferences using 6-component algorithm; return (score, reasons)."""
+    required_song_fields = {
+        'mood', 'genre', 'energy', 'valence', 'danceability', 'acousticness'
+    }
+    missing_song_fields = required_song_fields - set(song.keys())
+    if missing_song_fields:
+        raise ValueError(
+            f"Song missing required fields: {', '.join(sorted(missing_song_fields))}\n"
+            f"Song provided: {song}"
+        )
+
+    has_genre = 'favorite_genre' in user_prefs or 'genre' in user_prefs
+    has_mood = 'favorite_mood' in user_prefs or 'mood' in user_prefs
+    has_energy = 'target_energy' in user_prefs or 'energy' in user_prefs
+
+    if not all([has_genre, has_mood, has_energy]):
+        missing = []
+        if not has_genre:
+            missing.append("genre/favorite_genre")
+        if not has_mood:
+            missing.append("mood/favorite_mood")
+        if not has_energy:
+            missing.append("energy/target_energy")
+        raise ValueError(
+            f"User profile missing required fields: {', '.join(missing)}\n"
+            f"Provided: {', '.join(sorted(user_prefs.keys()))}"
+        )
+
     score = 0.0
     reasons = []
 
