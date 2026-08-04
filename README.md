@@ -229,6 +229,14 @@ Use this section to document the experiments you ran. For example:
 - What happened when you added tempo or valence to the score
 - How did your system behave for different types of users
 
+I tested main.py on 4 edge profiles ( stored in the test_profiles.py ) - results were saved and analyzed within the model_card.md (line101:335)
+
+
+I commented out mood entirely in the scoring formula in recommender.py. What I have noticed when test-running main.py on my edge profiles is: profile ```niche_conflicts``` songs recommended and the scores did not change (this aligned with an issues identified in the test before, where mood of profile song did not exist in the songs.csv file); profile ```acoustic_electronic_conflict``` and ```extreme_maxed``` top 5 songs recommended change slightly, 4 overlapped, differently scored with the previously recommneded songs when mood were included . I think it's less accurate. 
+✓ Mood provides ranking differentiation (helps distinguish between close competitors)
+✓ Other features (genre, valence, energy, etc.) are dominant, but incomplete alone
+✓ A 6-component system is more accurate than 5-component
+✓ Mood's value is subtle (not a tiebreaker in every case, but meaningful in some)
 ---
 
 ## Limitations and Risks

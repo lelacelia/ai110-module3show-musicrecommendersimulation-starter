@@ -391,3 +391,14 @@ Prompts:
 - What you learned about recommender systems  
 - Something unexpected or interesting you discovered  
 - How this changed the way you think about music recommendation apps  
+
+I learned about different recommender systems, the difference between collaborative filtering (using other users' behavior) and content-based filtering (using song attributes), and how to set up scoring system using the Caussian Curve.
+
+Biases exist within scoring system and the dataset. This reflects real life scenarios where pop songs are dominating the music repository as compared to other genres. Song recommenders that rely predominantly on genre, have heavy weights assigned to some speficic common characteristics may work less effectively with music listeners who do not share a popular music taste. This is probably the biggest learning momemnt for me.
+
+I used a narrow Gaussian per AI recommendations when starting out, which amplifies the biases caused by small dataset. I would increase the σ from 0.20 to 0.35–0.40. 
+
+
+
+
+ 
